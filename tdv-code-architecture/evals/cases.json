@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "common_required": [
+    {
+      "id": "C1",
+      "description": "State the appropriate depth and bounded scope; keep unavailable and excluded evidence distinct."
+    },
+    {
+      "id": "C2",
+      "description": "Explain purpose, actors/consumers, system boundary and relevant domain concepts before detailed implementation; support them from the packet."
+    },
+    {
+      "id": "C3",
+      "description": "Cite significant behavior using fixture-local paths and symbols or ranges; distinguish source, stated intent and unknown runtime behavior."
+    },
+    {
+      "id": "C4",
+      "description": "Trace an architecturally important operation through meaningful completion and failure, rather than substituting an easy accessor."
+    },
+    {
+      "id": "C5",
+      "description": "Provide a short ordered reading path and a useful change entry point with the relevant invariant and tests or a precise test-evidence gap."
+    },
+    {
+      "id": "C6",
+      "description": "Stop within scope, reuse shared contracts and identify any consequential remaining gap and next evidence target without claiming comprehensive proof."
+    }
+  ],
+  "common_forbidden": [
+    {
+      "id": "F1",
+      "description": "Assert that fixture code, tests, infrastructure, hardware or the real application was executed, or claim real Git inspection of packet metadata."
+    },
+    {
+      "id": "F2",
+      "description": "Invent source files, product requirements, architectural components, or implementation/runtime guarantees absent from the packet."
+    },
+    {
+      "id": "F3",
+      "description": "Present an unavailable or merely inventory-listed implementation as deeply traced, or treat a declaration/example as observed production behavior."
+    }
+  ],
+  "cases": [
+    {
+      "id": "pure-library",
+      "prompt": "Explain this codebase to a newcomer: what it is for, how a consumer uses it, and where to change interval-merging behavior. Use only the supplied evidence packet and return a plain Markdown architecture guide.",
+      "evidence": "fixtures/pure-library.md",
+      "expected_depth": "standard",
+      "required": [
+        {
+          "id": "L1",
+          "description": "Identify a synchronous stateless library used by scheduling/reporting callers; explain closed intervals and a normalized union.",
+          "evidence": ["README.md", "src/spanpack/intervals.py:merge"]
+        },
+        {
+          "id": "L2",
+          "description": "Explain sorting, merging overlapping or touching intervals, returning fresh tuples, not mutating input, and rejecting reversed intervals with ValueError.",
+          "evidence": ["src/spanpack/intervals.py:merge"]
+        },
+        {
+          "id": "L3",
+          "description": "Locate the touching-interval comparison and relevant assertions as the change surface; distinguish inspected tests from executed tests.",
+          "evidence": ["src/spanpack/intervals.py:merge", "tests/test_intervals.py"]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "L4",
+          "description": "Invent a service, database, event loop, worker, explicit close/shutdown lifecycle, or persistent booking state."
+        },
+        {
+          "id": "L5",
+          "description": "Turn the stated deterministic/non-mutating contract into measured performance or scheduling business rules."
+        }
+      ]
+    },
+    {
+      "id": "small-cli",
+      "prompt": "Give me a concise architectural orientation to this CLI in at most 350 words. Cover its purpose, success and failure behavior, and where I would add a command. Use only the supplied evidence packet and plain Markdown.",
+      "evidence": "fixtures/small-cli.md",
+      "expected_depth": "standard",
+      "max_words": 350,
+      "required": [
+        {
+          "id": "Q1",
+          "description": "Explain finite JSON syntax checking for shell users and CI, not schema or business validation; trace main to check and exit status.",
+          "evidence": ["README.md", "pyproject.toml", "jcheck/cli.py:main", "jcheck/cli.py:check", "jcheck/__main__.py"]
+        },
+        {
+          "id": "Q2",
+          "description": "State valid JSON uses stdout and exit 0, invalid JSON uses stderr and exit 1, and file-read failure uses stderr and exit 2; argument errors are handled by argparse.",
+          "evidence": ["jcheck/cli.py:check", "jcheck/cli.py:main"]
+        },
+        {
+          "id": "Q3",
+          "description": "Name parser/dispatch and contract tests as coupled change surfaces; keep the complete report within the user's word limit.",
+          "evidence": ["jcheck/cli.py:main", "tests/test_cli.py"]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "Q4",
+          "description": "Invent a daemon, network operation, input rewrite, schema validation, mandatory server architecture, or a fourteen-section report."
+        }
+      ]
+    },
+    {
+      "id": "dirty-monorepo",
+      "prompt": "Orient me to packages/orders and its submit operation in this monorepo. Treat pricing and storage only as adjacent contracts, exclude the website, and explain the supplied local change. Use only the supplied evidence packet and plain Markdown.",
+      "evidence": "fixtures/dirty-monorepo.md",
+      "expected_depth": "targeted",
+      "required": [
+        {
+          "id": "M1",
+          "description": "Keep orders in scope, pricing/storage contract-mapped, and website excluded; do not expand into every workspace package.",
+          "evidence": ["workspace.json", "packages/orders/README.md"]
+        },
+        {
+          "id": "M2",
+          "description": "Explain line items, integer cents, quantity validation, discounted total and submitted record; connect callers to the in-process pricing and storage boundaries.",
+          "evidence": ["packages/orders/README.md", "packages/orders/submit.py:submit", "packages/pricing/api.py:total", "packages/storage/api.py:MemoryStore"]
+        },
+        {
+          "id": "M3",
+          "description": "Qualify the supplied dirty snapshot: current submit uses a 10 percent discount while HEAD used zero; the supplied order assertion still expects the old value.",
+          "evidence": ["snapshot.txt", "working-tree.diff", "packages/orders/submit.py:submit", "packages/orders/tests/test_submit.py"]
+        },
+        {
+          "id": "M4",
+          "description": "Explain that create returning completes this in-memory operation, not a durable transaction; quantity failure prevents storage creation.",
+          "evidence": ["packages/orders/submit.py:submit", "packages/storage/api.py:MemoryStore"]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "M5",
+          "description": "Claim the current checkout charges the old total, that its existing assertion agrees with the changed behavior, or that any tests were run."
+        },
+        {
+          "id": "M6",
+          "description": "Treat packages as independently deployed microservices, invent durable storage, analyze the excluded website, or propose reverting the user's local change."
+        }
+      ]
+    },
+    {
+      "id": "message-consumer",
+      "prompt": "Give a deep architecture trace of this credit consumer, concentrating on durable completion, acknowledgment, duplicate delivery and failure recovery. Use only the supplied evidence packet and plain Markdown; identify guarantees that the evidence cannot establish.",
+      "evidence": "fixtures/message-consumer.md",
+      "expected_depth": "deep",
+      "required": [
+        {
+          "id": "D1",
+          "description": "Explain the balance-crediting purpose, upstream producer, consumer, database, receipt provider and broker boundary; define event ID, credit and processed marker.",
+          "evidence": ["README.md", "consumer.py:handle", "store.py:open_store", "mailer.py:Mailer"]
+        },
+        {
+          "id": "D2",
+          "description": "Trace unique processed-marker insertion and balance update in one SQLite transaction, then receipt request, then broker acknowledgment; separate their completion points.",
+          "evidence": ["consumer.py:handle", "store.py:open_store"]
+        },
+        {
+          "id": "D3",
+          "description": "Analyze the crash window after commit but before ack: redelivery can skip the database effect yet repeat the receipt request; notification exactly-once behavior is unknown.",
+          "evidence": ["consumer.py:handle", "mailer.py:Mailer", "broker.example.yaml"]
+        },
+        {
+          "id": "D4",
+          "description": "Identify the missing-row rollback path and qualify the mocked duplicate-delivery test and example broker policy rather than treating either as production proof.",
+          "evidence": ["consumer.py:handle", "tests/test_consumer.py", "broker.example.yaml"]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "D5",
+          "description": "Claim end-to-end exactly-once effects, an outbox, an atomic transaction covering the remote receipt, or acknowledgment before database commit."
+        },
+        {
+          "id": "D6",
+          "description": "Guarantee that the remote provider sends duplicate receipts or deduplicates them, or that example broker settings are deployed."
+        }
+      ]
+    },
+    {
+      "id": "plugin-host",
+      "prompt": "Map this application's plugin architecture and deeply trace host shutdown plus the important plugin lifecycle differences. Account for product, optional, example and external candidates without auditing unavailable SDK internals. Use only the supplied evidence packet and plain Markdown.",
+      "evidence": "fixtures/plugin-host.md",
+      "expected_depth": "deep",
+      "required": [
+        {
+          "id": "P1",
+          "description": "Explain the measurement application's operator, host, reading and plugin-instance concepts; distinguish in-process modules from process isolation.",
+          "evidence": ["README.md", "host.py:Host"]
+        },
+        {
+          "id": "P2",
+          "description": "Classify ruler as core/default, camera as optional/default-off, echo as an example not shipped, and OnlineFX as merely supported external code; distinguish declarations from activation.",
+          "evidence": ["build.json", "docs/extensions.md"]
+        },
+        {
+          "id": "P3",
+          "description": "Preserve normal host shutdown order: reject creation, stop all instances, destroy all instances, unload modules; recognize exceptions can interrupt it. Explain module code/global lifetime separately from instance lifetime.",
+          "evidence": ["host.py:Host.shutdown", "plugins/ruler.py", "plugins/camera.py"]
+        },
+        {
+          "id": "P4",
+          "description": "Explain the ruler's local lifecycle and the camera's cancel/release path; flag missing SDK callback-quiescence evidence and identify the SDK contract as the next target.",
+          "evidence": ["plugins/ruler.py", "plugins/camera.py", "sdk/README.md"]
+        },
+        {
+          "id": "P5",
+          "description": "Qualify the fake-instance ordering test and assign honest candidate coverage; do not invent inspected internals for the example or external plugin.",
+          "evidence": ["tests/test_host.py", "docs/extensions.md"]
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "P6",
+          "description": "Claim SDK cancel proves callback quiescence, assert a confirmed use-after-free solely from missing SDK evidence, or claim unloading Python module state unmaps code."
+        },
+        {
+          "id": "P7",
+          "description": "Treat every documented extension as shipped/enabled or every inventory entry as lifecycle-audited."
+        }
+      ]
+    }
+  ]
+}
