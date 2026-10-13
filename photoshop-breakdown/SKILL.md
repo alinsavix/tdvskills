@@ -7,6 +7,10 @@ description: Create or revise an editable exploded isometric breakdown of a laye
 
 Build a readable explanation of the user's actual layer structure in Photoshop. Use the connected Photoshop MCP and real document content; do not regenerate or approximate the artwork with image generation.
 
+## Compatibility
+
+This skill has only been tested with [alisaitteke's Photoshop MCP](https://github.com/alisaitteke/photoshop-mcp). It may work with other Photoshop MCP servers, but compatibility has not been verified. Tool names, scripting support, and error handling may need adaptation.
+
 ## Default result
 
 - A horizontal exploded stack of upright isometric planes: **bottommost included layer on the left, topmost on the right**.
